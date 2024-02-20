@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const { mongoConnection } = require("./util/database");
 const inventory = require("./routes/inventory");
+const auth = require("./routes/auth");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(multer({ storage: fileStorage }).single("inventoryImage"));
 
 app.use(inventory);
+app.use(auth);
 
 mongoConnection(() => {
   app.listen(3000);

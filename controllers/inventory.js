@@ -7,7 +7,6 @@ exports.getInventory = async (req, res, next) => {
 
 exports.postInventory = async (req, res, next) => {
   const data = { ...req.body, inventoryImage: req.file.path };
-  console.log(data);
   const inventory = await new Inventory(data);
   const result = await inventory.save();
 
