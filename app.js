@@ -21,13 +21,21 @@ const fileStorage = multer.diskStorage({
   },
 });
 
-app.use(cors());
 // app.use(bodyParser.urlencoded({ extended: false })); // used for forms
+app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
-app.use(multer({ storage: fileStorage }).single("inventoryImage"));
+app.use(multer({ storage: fileStorage }).single("inventoryImage")); // use const formData = FormData() in client side to accept the text and file
 
 app.use(inventory);
 app.use(auth);
+
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.status || 500;
+  const message = error.message;
+
+  res.status(status).json({ message: message });
+});
 
 mongoConnection(() => {
   app.listen(3000);

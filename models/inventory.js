@@ -1,8 +1,11 @@
+const { ObjectId } = require("mongodb");
+
 const { getDb } = require("../util/database");
 
 module.exports = class Inventory {
   constructor(data) {
     const {
+      _id,
       inventoryObject,
       inventoryName,
       inventorySupplier,
@@ -16,6 +19,7 @@ module.exports = class Inventory {
       inventoryImage,
     } = data;
 
+    this._id = _id;
     this.inventoryObject = inventoryObject;
     this.inventoryName = inventoryName;
     this.inventorySupplier = inventorySupplier;
@@ -31,17 +35,32 @@ module.exports = class Inventory {
 
   async save() {
     const db = getDb();
+
+    let dbOperation;
+    if (this._id) {
+      const { _id, ...updateData } = this;
+      dbOperation = db
+        .collection("inventory")
+        .updateOne({ _id: new ObjectId(this._id) }, { $set: updateData });
+    } else {
+      dbOperation = db.collection("inventory").insertOne(this);
+    }
+
     try {
-      return await db.collection("inventory").insertOne(this);
-    } catch (error) {
-      console.log(error);
+      return await dbOperation;
+    } catch (err) {
+      err.statusCode = 500;
+      throw err;
     }
   }
 
   static async fetchAll() {
     const db = getDb();
-    const result = await db.collection("inventory").find().toArray();
-
-    return result;
+    try {
+      return await db.collection("inventory").find().toArray();
+    } catch (err) {
+      err.statusCode = 500;
+      throw err;
+    }
   }
 };
