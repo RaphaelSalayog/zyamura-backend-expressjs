@@ -33,18 +33,18 @@ exports.postSignup = (req, res, next) => {
 };
 
 exports.postLogin = async (req, res, next) => {
-  const email = req.body.email;
+  const username = req.body.username;
   const password = req.body.password;
 
   try {
-    const user = await User.fetchUser(email);
+    const user = await User.fetchUser(username);
     if (!user) {
       const error = new Error("Invalid Username");
       error.statusCode = 401;
       throw error;
     }
 
-    const isEqual = await bcrypt.compare(password, user.password);
+    const isEqual = await bcrypt.compare(password, user.credentials.password);
     if (!isEqual) {
       const error = new Error("Invalid Password");
       error.statusCode = 401;
@@ -52,7 +52,7 @@ exports.postLogin = async (req, res, next) => {
     }
     const token = jwt.sign(
       {
-        email: user.email,
+        username: user.credentials.username,
         userId: user._id.toString(),
       },
       "secrettoken",
@@ -60,13 +60,13 @@ exports.postLogin = async (req, res, next) => {
     );
     res.status(200).json({
       token: token,
-      user: user.name,
-      email: user.email,
+      user: user.firstName + " " + user.lastName,
+      username: user.credentials.username,
       role: user.role,
     });
   } catch (err) {
     if (!err.statusCode) {
-      error.statusCode = 500;
+      err.statusCode = 500;
     }
     next(err);
   }

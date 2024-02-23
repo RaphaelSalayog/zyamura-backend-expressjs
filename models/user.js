@@ -25,10 +25,12 @@ module.exports = class User {
     }
   }
 
-  static async fetchUser(email) {
+  static async fetchUser(username) {
     const db = getDb();
     try {
-      const user = await db.collection("user").findOne({ email: email });
+      const user = await db
+        .collection("user")
+        .findOne({ "credentials.username": username });
       return user;
     } catch (err) {
       console.log(err);
