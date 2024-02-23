@@ -145,3 +145,29 @@ exports.putUser = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.deleteUser = async (req, res, next) => {
+  const _id = req.params.userId;
+
+  try {
+    const response = await User.deleteData(_id);
+
+    if (response?.deletedCount === 0 || !response) {
+      const error = new Error(
+        "No document was deleted. Document not found or deletion failed."
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+
+    res.status(200).json({
+      message: "Delete user successfully",
+      _id: _id,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};

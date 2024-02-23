@@ -8,6 +8,7 @@ const {
   getLogin,
   getUserById,
   putUser,
+  deleteUser,
 } = require("../controllers/auth");
 
 router.get("/login", isAuth, getLogin);
@@ -16,5 +17,6 @@ router.post("/signup", postSignup);
 
 router.get("/user", isAuth, getUserById);
 router.put("/user/:userId", isAuth, putUser);
+router.delete("/user/:userId", isAuth, deleteUser);
 
 module.exports = router;
