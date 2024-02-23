@@ -38,10 +38,10 @@ module.exports = class Inventory {
 
     let dbOperation;
     if (this._id) {
-      const { _id, ...updateData } = this;
+      const { _id, ...restData } = this;
       dbOperation = db
         .collection("inventory")
-        .updateOne({ _id: new ObjectId(this._id) }, { $set: updateData });
+        .updateOne({ _id: new ObjectId(this._id) }, { $set: restData });
     } else {
       dbOperation = db.collection("inventory").insertOne(this);
     }
