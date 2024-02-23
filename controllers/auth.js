@@ -10,22 +10,25 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.postSignup = (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { password, ...userData } = req.body;
 
   bcrypt
     .hash(password, 12)
     .then((hashedPw) => {
-      const user = new User(email, hashedPw, "Paeng", "admin");
+      userData.password = hashedPw;
+      const user = new User(userData);
       return user.save();
     })
     .then((result) => {
       res
         .status(201)
-        .json({ message: "Signup successful", userId: result._id });
+        .json({ message: "Signup successful", userId: result.insertedId });
     })
     .catch((err) => {
-      console.log(err);
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
     });
 };
 

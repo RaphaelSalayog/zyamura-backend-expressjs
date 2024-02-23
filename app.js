@@ -11,7 +11,9 @@ const app = express();
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "images");
+    const folderPath =
+      file.fieldname === "profilePicture" ? "user" : "inventory";
+    cb(null, `images/${folderPath}`);
   },
   filename: (req, file, cb) => {
     cb(
@@ -24,7 +26,18 @@ const fileStorage = multer.diskStorage({
 // app.use(bodyParser.urlencoded({ extended: false })); // used for forms
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
-app.use(multer({ storage: fileStorage }).single("inventoryImage")); // use const formData = FormData() in client side to accept the text and file
+
+// use const formData = FormData() in client side to accept the text and file when using multer
+// use multer().single('profilePicture') if you only have 1 file upload
+app.use(
+  multer({ storage: fileStorage }).fields([
+    {
+      name: "profilePicture",
+      maxCount: 1,
+    },
+    { name: "inventoryImage", maxCount: 1 },
+  ])
+);
 
 app.use(inventory);
 app.use(auth);

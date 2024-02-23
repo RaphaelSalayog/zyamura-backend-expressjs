@@ -8,8 +8,7 @@ exports.getInventory = async (req, res, next) => {
 };
 
 exports.postInventory = async (req, res, next) => {
-  const data = { ...req.body, inventoryImage: req.file.path }; // use const formData = FormData() in client side to accept the text and file
-  console.log(req.file.path);
+  const data = { ...req.body, inventoryImage: req?.file?.path }; // use const formData = FormData() in client side to accept the text and file
 
   const inventory = await new Inventory(data);
   const result = await inventory.save();

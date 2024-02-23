@@ -1,11 +1,19 @@
 const { getDb } = require("../util/database");
 
 module.exports = class User {
-  constructor(email, password, name, role) {
-    this.email = email;
-    this.password = password;
-    this.name = name;
-    this.role = role;
+  constructor(userData) {
+    this.firstName = userData.firstName;
+    this.lastName = userData.lastName;
+    this.address = userData.address;
+    this.phoneNumber = userData.phoneNumber;
+    this.email = userData.email;
+    this.birthDate = userData.birthDate;
+    this.role = userData.role;
+    this.credentials = {
+      username: userData.username,
+      password: userData.password,
+    };
+    this.profilePicture = userData.profilePicture;
   }
 
   async save() {
