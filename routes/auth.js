@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+const { imageUploader } = require("../middleware/imageUploader");
 const isAuth = require("../middleware/auth");
 const {
   postSignup,
@@ -13,10 +14,20 @@ const {
 
 router.get("/login", isAuth, getLogin);
 router.post("/login", postLogin);
-router.post("/signup", postSignup);
+router.post("/signup", imageUploader("user", "profilePicture"), postSignup);
 
 router.get("/user", isAuth, getUserById);
-router.put("/user/:userId", isAuth, putUser);
-router.delete("/user/:userId", isAuth, deleteUser);
+router.put(
+  "/user/:userId",
+  isAuth,
+  imageUploader("user", "profilePicture"),
+  putUser
+);
+router.delete(
+  "/user/:userId",
+  isAuth,
+  imageUploader("user", "profilePicture"),
+  deleteUser
+);
 
 module.exports = router;

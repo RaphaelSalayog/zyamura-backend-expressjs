@@ -10,7 +10,16 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.postSignup = (req, res, next) => {
+  if (!req.file) {
+    const error = new Error(
+      "Please upload images in JPEG, JPG, or PNG format only."
+    );
+    error.statusCode = 422;
+    throw error;
+  }
+
   const { password, ...userData } = req.body;
+  userData.profilePicture = req.file.path;
 
   bcrypt
     .hash(password, 12)
@@ -60,7 +69,7 @@ exports.postLogin = async (req, res, next) => {
     );
     res.status(200).json({
       token: token,
-      user: user.firstName + " " + user.lastName,
+      user: user._id.toString(),
       username: user.credentials.username,
       role: user.role,
     });
@@ -95,15 +104,28 @@ exports.putUser = async (req, res, next) => {
   const _id = req.params.userId;
   const oldPassword = req.body.oldPassword;
   const newPassword = req.body.newPassword;
+  let imageUrl = req.body.profilePicture;
 
   try {
+    if (!req.file) {
+      const error = new Error(
+        "Please upload images in JPEG, JPG, or PNG format only."
+      );
+      error.statusCode = 422;
+      throw error;
+    }
+
+    if (req.file.path) {
+      imageUrl = req.file.path;
+    }
+
     const fetchedUser = await User.fetchUserById(_id);
     if (!fetchedUser) {
       const error = new Error("User not found!");
       error.statusCode = 404;
       throw error;
     }
-    console.log(fetchedUser);
+
     if (oldPassword) {
       const isEqual = await bcrypt.compare(
         oldPassword,
@@ -133,7 +155,12 @@ exports.putUser = async (req, res, next) => {
     }
 
     const hashedPw = await bcrypt.hash(newPassword, 12);
-    const data = { _id, password: hashedPw, ...req.body };
+    const data = {
+      _id,
+      password: hashedPw,
+      profilePicture: imageUrl,
+      ...req.body,
+    };
     const user = new User(data);
     await user.save();
 
