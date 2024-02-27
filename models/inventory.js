@@ -62,7 +62,7 @@ module.exports = class Inventory {
     }
   }
 
-  static async fetchById(_id) {
+  static async findById(_id) {
     const db = getDb();
     try {
       return await db

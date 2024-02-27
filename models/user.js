@@ -29,6 +29,7 @@ module.exports = class User {
         phoneNumber,
         email,
         credentials: { password },
+        profilePicture,
       } = this;
 
       dbOperation = db.collection("user").updateOne(
@@ -40,6 +41,7 @@ module.exports = class User {
             phoneNumber,
             email,
             "credentials.password": password,
+            profilePicture,
           },
         }
       );
@@ -66,7 +68,7 @@ module.exports = class User {
     }
   }
 
-  static async fetchUserById(_id) {
+  static async findById(_id) {
     const db = getDb();
     try {
       const user = await db
@@ -78,7 +80,7 @@ module.exports = class User {
     }
   }
 
-  static async deleteData(_id) {
+  static async deleteById(_id) {
     const db = getDb();
     try {
       return await db.collection("user").deleteOne({ _id: new ObjectId(_id) });

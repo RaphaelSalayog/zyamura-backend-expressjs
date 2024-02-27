@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -85,7 +87,7 @@ exports.getUserById = async (req, res, next) => {
   const _id = req.userId;
 
   try {
-    const data = await User.fetchUserById(_id);
+    const data = await User.findById(_id);
     const { credentials, ...restData } = data;
 
     res.status(200).json({
@@ -119,7 +121,7 @@ exports.putUser = async (req, res, next) => {
       imageUrl = req.file.path;
     }
 
-    const fetchedUser = await User.fetchUserById(_id);
+    const fetchedUser = await User.findById(_id);
     if (!fetchedUser) {
       const error = new Error("User not found!");
       error.statusCode = 404;
@@ -154,6 +156,9 @@ exports.putUser = async (req, res, next) => {
       }
     }
 
+    if (imageUrl !== fetchedUser.profilePicture) {
+      clearImage(fetchedUser.profilePicture);
+    }
     const hashedPw = await bcrypt.hash(newPassword, 12);
     const data = {
       _id,
@@ -177,15 +182,16 @@ exports.deleteUser = async (req, res, next) => {
   const _id = req.params.userId;
 
   try {
-    const response = await User.deleteData(_id);
-
-    if (response?.deletedCount === 0 || !response) {
-      const error = new Error(
-        "No document was deleted. Document not found or deletion failed."
-      );
-      error.statusCode = 400;
+    const data = User.findById(_id);
+    if (!data) {
+      const error = new Error("Could not find item or pet");
+      error.statusCode = 404;
       throw error;
     }
+    clearImage(data.profilePicture);
+
+    const response = await User.deleteById(_id);
+    console.log(response);
 
     res.status(200).json({
       message: "Delete user successfully",
@@ -197,4 +203,9 @@ exports.deleteUser = async (req, res, next) => {
     }
     next(err);
   }
+};
+
+const clearImage = (filePath) => {
+  filePath = path.join(__dirname, "..", filePath);
+  fs.unlink(filePath, (err) => console.log(err));
 };

@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 
 const Inventory = require("../models/inventory");
 
@@ -63,11 +64,14 @@ exports.updateInventory = async (req, res, next) => {
       throw error;
     }
 
-    const response = await Inventory.fetchById(_id);
+    const response = await Inventory.findById(_id);
     if (!response) {
       const error = new Error("Item not found");
       error.statusCode = 404;
       throw error;
+    }
+    if (imageUrl !== response.inventoryImage) {
+      clearImage(response.inventoryImage);
     }
 
     const inventory = await new Inventory(data);
@@ -89,15 +93,16 @@ exports.deleteInventory = async (req, res, next) => {
   const _id = req.params.inventoryId;
 
   try {
-    const response = await Inventory.deleteById(_id);
-
-    if (response?.deletedCount === 0 || !response) {
-      const error = new Error(
-        "No document was deleted. Document not found or deletion failed."
-      );
-      error.statusCode = 400;
+    const data = await Inventory.findById(_id);
+    if (!data) {
+      const error = new Error("Could not find item or pet");
+      error.statusCode = 404;
       throw error;
     }
+    clearImage(data.inventoryImage);
+
+    const response = await Inventory.deleteById(_id);
+    console.log(response);
 
     res.status(200).json({
       message: "Delete user successfully",
