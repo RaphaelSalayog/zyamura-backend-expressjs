@@ -82,6 +82,8 @@ module.exports = class User {
     const db = getDb();
     try {
       return await db.collection("user").deleteOne({ _id: new ObjectId(_id) });
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }
 };

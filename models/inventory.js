@@ -49,8 +49,7 @@ module.exports = class Inventory {
     try {
       return await dbOperation;
     } catch (err) {
-      err.statusCode = 500;
-      throw err;
+      console.log(err);
     }
   }
 
@@ -59,8 +58,29 @@ module.exports = class Inventory {
     try {
       return await db.collection("inventory").find().toArray();
     } catch (err) {
-      err.statusCode = 500;
-      throw err;
+      console.log(err);
+    }
+  }
+
+  static async fetchById(_id) {
+    const db = getDb();
+    try {
+      return await db
+        .collection("inventory")
+        .findOne({ _id: new ObjectId(_id) });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  static async deleteById(_id) {
+    const db = getDb();
+    try {
+      return await db
+        .collection("inventory")
+        .deleteOne({ _id: new ObjectId(_id) });
+    } catch (err) {
+      console.log(err);
     }
   }
 };
