@@ -119,15 +119,7 @@ exports.putUser = async (req, res, next) => {
   let imageUrl = req.body.profilePicture;
 
   try {
-    if (!req.file) {
-      const error = new Error(
-        "Please upload images in JPEG, JPG, or PNG format only."
-      );
-      error.statusCode = 422;
-      throw error;
-    }
-
-    if (req.file.path) {
+    if (req.file) {
       imageUrl = req.file.path;
     }
 
@@ -181,6 +173,9 @@ exports.putUser = async (req, res, next) => {
 
     res.status(200).json({ message: "Update successfully", _id: user._id });
   } catch (err) {
+    if (req.file) {
+      clearImage(imageUrl);
+    }
     if (!err.statusCode) {
       err.statusCode = 500;
     }

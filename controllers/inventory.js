@@ -24,7 +24,7 @@ exports.postInventory = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const data = { ...req.body, inventoryImage: req.file.path }; // use const formData = FormData() in client side to accept the text and file
+    const data = { ...req.body, image: req.file.path }; // use const formData = FormData() in client side to accept the text and file
 
     const inventory = await new Inventory(data);
     const result = await inventory.save();
@@ -43,20 +43,13 @@ exports.postInventory = async (req, res, next) => {
 
 exports.updateInventory = async (req, res, next) => {
   try {
-    if (!req.file) {
-      const error = new Error(
-        "Please upload images in JPEG, JPG, or PNG format only."
-      );
-      error.statusCode = 422;
-      throw error;
-    }
-
+    // inventoryId is a dynamic variable for link. (Check it in routes > inventory.js)
     const _id = req.params.inventoryId;
-    let imageUrl = req.body.inventoryImage;
+    let imageUrl = req.body.image;
     if (req.file) {
       imageUrl = req.file.path;
     }
-    const data = { ...req.body, inventoryImage: imageUrl };
+    const data = { _id: _id, ...req.body, image: imageUrl };
 
     if (!imageUrl) {
       const error = new Error("No file picked");
@@ -70,8 +63,8 @@ exports.updateInventory = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (imageUrl !== response.inventoryImage) {
-      clearImage(response.inventoryImage);
+    if (imageUrl !== response.image) {
+      clearImage(response.image);
     }
 
     const inventory = await new Inventory(data);
@@ -82,6 +75,9 @@ exports.updateInventory = async (req, res, next) => {
       post: result,
     });
   } catch (err) {
+    if (req.file) {
+      clearImage(imageUrl);
+    }
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -90,6 +86,7 @@ exports.updateInventory = async (req, res, next) => {
 };
 
 exports.deleteInventory = async (req, res, next) => {
+  // inventoryId is a dynamic variable for link. (Check it in routes > inventory.js)
   const _id = req.params.inventoryId;
 
   try {
@@ -99,7 +96,7 @@ exports.deleteInventory = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    clearImage(data.inventoryImage);
+    clearImage(data.image);
 
     const response = await Inventory.deleteById(_id);
     console.log(response);

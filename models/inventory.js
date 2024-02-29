@@ -6,31 +6,31 @@ module.exports = class Inventory {
   constructor(data) {
     const {
       _id,
-      inventoryObject,
-      inventoryName,
-      inventorySupplier,
-      inventoryDescription,
-      inventorySellingPrice,
-      inventoryInvestmentCost,
-      inventoryCategory,
-      inventoryGender,
-      inventoryType,
-      inventoryQuantity,
-      inventoryImage,
+      object,
+      name,
+      supplier,
+      description,
+      sellingPrice,
+      investmentCost,
+      category,
+      gender,
+      type,
+      quantity,
+      image,
     } = data;
 
     this._id = _id;
-    this.inventoryObject = inventoryObject;
-    this.inventoryName = inventoryName;
-    this.inventorySupplier = inventorySupplier;
-    this.inventoryDescription = inventoryDescription;
-    this.inventorySellingPrice = inventorySellingPrice;
-    this.inventoryInvestmentCost = inventoryInvestmentCost;
-    this.inventoryCategory = inventoryCategory;
-    this.inventoryGender = inventoryGender;
-    this.inventoryType = inventoryType;
-    this.inventoryQuantity = inventoryQuantity;
-    this.inventoryImage = inventoryImage;
+    this.object = object;
+    this.name = name;
+    this.supplier = supplier;
+    this.description = description;
+    this.sellingPrice = sellingPrice;
+    this.investmentCost = investmentCost;
+    this.category = category;
+    this.gender = gender;
+    this.type = type;
+    this.quantity = quantity;
+    this.image = image;
   }
 
   async save() {
