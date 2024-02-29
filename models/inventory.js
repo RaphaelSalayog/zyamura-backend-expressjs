@@ -16,7 +16,7 @@ module.exports = class Inventory {
       gender,
       type,
       quantity,
-      image,
+      imageUrl,
     } = data;
 
     this._id = _id;
@@ -30,7 +30,7 @@ module.exports = class Inventory {
     this.gender = gender;
     this.type = type;
     this.quantity = quantity;
-    this.image = image;
+    this.imageUrl = imageUrl;
   }
 
   async save() {

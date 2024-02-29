@@ -73,7 +73,7 @@ exports.postLogin = async (req, res, next) => {
       "secrettoken",
       { expiresIn: "24h" }
     );
-
+    // We need to add const corsOptions = { origin: true, credentials: true, }; in cors() to be able to set the cookie in client side. (Check it in app.js)
     // To add the token in cookie to access it in server side rendering in next js (Check it in Inventory page in next js)
     res.setHeader(
       "Set-Cookie",

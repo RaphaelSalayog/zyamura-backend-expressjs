@@ -14,13 +14,13 @@ router.get("/inventory", isAuth, getInventory);
 router.post(
   "/inventory",
   isAuth,
-  imageUploader("inventory", "image"),
+  imageUploader("inventory", "imageUrl"),
   postInventory
 );
 router.put(
   "/inventory/:inventoryId",
   isAuth,
-  imageUploader("inventory", "image"),
+  imageUploader("inventory", "imageUrl"),
   updateInventory
 );
 router.delete("/inventory/:inventoryId", isAuth, deleteInventory);

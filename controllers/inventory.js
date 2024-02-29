@@ -24,7 +24,7 @@ exports.postInventory = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const data = { ...req.body, image: req.file.path }; // use const formData = FormData() in client side to accept the text and file
+    const data = { ...req.body, imageUrl: req.file.path }; // use const formData = FormData() in client side to accept the text and file
 
     const inventory = await new Inventory(data);
     const result = await inventory.save();
@@ -45,11 +45,11 @@ exports.updateInventory = async (req, res, next) => {
   try {
     // inventoryId is a dynamic variable for link. (Check it in routes > inventory.js)
     const _id = req.params.inventoryId;
-    let imageUrl = req.body.image;
+    let imageUrl = req.body.imageUrl;
     if (req.file) {
       imageUrl = req.file.path;
     }
-    const data = { _id: _id, ...req.body, image: imageUrl };
+    const data = { _id: _id, ...req.body, imageUrl: imageUrl };
 
     if (!imageUrl) {
       const error = new Error("No file picked");
@@ -63,8 +63,8 @@ exports.updateInventory = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (imageUrl !== response.image) {
-      clearImage(response.image);
+    if (imageUrl !== response.imageUrl) {
+      clearImage(response.imageUrl);
     }
 
     const inventory = await new Inventory(data);
@@ -96,7 +96,7 @@ exports.deleteInventory = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    clearImage(data.image);
+    clearImage(data.imageUrl);
 
     const response = await Inventory.deleteById(_id);
     console.log(response);

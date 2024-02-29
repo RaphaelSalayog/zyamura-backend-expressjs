@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 
 const { mongoConnection } = require("./util/database");
 const inventory = require("./routes/inventory");
@@ -8,9 +9,16 @@ const auth = require("./routes/auth");
 
 const app = express();
 
+// used to get the token from cookie in client side. Components > login > forms > LoginForms.tsx > await fetch(url, { credentials: "include" });
+const corsOptions = {
+  origin: true,
+  credentials: true,
+};
+
 // app.use(bodyParser.urlencoded({ extended: false })); // used for forms
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
+app.use("/images", express.static(path.join(__dirname, "images"))); // to access the images folder from client side by using a url <img src={'http://localhost:3000/images\\inventory\\2024-02-29T10-47-00.961Z-4.png'}/>
 
 app.use(inventory);
 app.use(auth);
