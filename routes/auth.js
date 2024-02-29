@@ -7,6 +7,7 @@ const {
   postSignup,
   postLogin,
   getLogin,
+  getLogout,
   getUserById,
   putUser,
   deleteUser,
@@ -14,6 +15,7 @@ const {
 
 router.get("/login", isAuth, getLogin);
 router.post("/login", postLogin);
+router.get("/logout", isAuth, getLogout);
 router.post("/signup", imageUploader("user", "profilePicture"), postSignup);
 
 router.get("/user", isAuth, getUserById);

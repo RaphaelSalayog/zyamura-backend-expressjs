@@ -11,6 +11,16 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
+exports.getLogout = (req, res, next) => {
+  res.cookie("token", "", {
+    expires: new Date(0),
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+  res.json({ success: true, message: "Logout successful" });
+};
+
 exports.postSignup = async (req, res, next) => {
   if (!req.file) {
     const error = new Error(
@@ -75,10 +85,17 @@ exports.postLogin = async (req, res, next) => {
     );
     // We need to add const corsOptions = { origin: true, credentials: true, }; in cors() to be able to set the cookie in client side. (Check it in app.js)
     // To add the token in cookie to access it in server side rendering in next js (Check it in Inventory page in next js)
-    res.setHeader(
-      "Set-Cookie",
-      `token=${token}; Max-Age=${60 * 60 * 24}; HttpOnly; Secure;`
-    );
+    res.cookie("token", token, {
+      maxAge: 60 * 60 * 24 * 1000, // Cookie expires in 1 day
+      httpOnly: true, // Cookie is accessible only through the server
+      secure: process.env.NODE_ENV === "production", // Send cookie only over HTTPS in production
+      sameSite: "strict", // Cookie is sent only to the same site
+    });
+    // res.setHeader(
+    //   "Set-Cookie",
+    //   `token=${token}; Max-Age=${60 * 60 * 24}; HttpOnly; Secure;`
+    // );
+
     res.status(200).json({
       token: token,
       user: user._id.toString(),
