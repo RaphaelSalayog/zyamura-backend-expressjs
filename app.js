@@ -17,14 +17,18 @@ app.use(auth);
 
 app.use((error, req, res, next) => {
   console.log(error);
-  const status = error.status || 500;
+  const statusCode = error.statusCode || 500;
   const message = error.message;
 
-  res.status(status).json({ message: message });
+  res.status(statusCode).json({ message: message, statusCode: statusCode });
 });
 
 mongoConnection(() => {
-  app.listen(3000);
+  const server = app.listen(process.env.PORT || 3000);
+  const io = require("socket.io")(server);
+  io.on("connection", (socket) => {
+    console.log("Client connected");
+  });
 });
 
 // const fileStorage = multer.diskStorage({

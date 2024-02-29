@@ -5,11 +5,11 @@ let _db;
 
 const mongoConnection = (listenerCallback) => {
   MongoClient.connect(
-    "mongodb+srv://zyamura:0uDaRYX9Jbhi6CLZ@zyamura.ewpn9zp.mongodb.net/?retryWrites=true&w=majority"
+    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}.mongodb.net/?retryWrites=true&w=majority`
   )
     .then((client) => {
       console.log("connected");
-      _db = client.db("zyamura");
+      _db = client.db(process.env.MONGO_DEFAULT_DATABASE);
       listenerCallback();
     })
     .catch((error) => {

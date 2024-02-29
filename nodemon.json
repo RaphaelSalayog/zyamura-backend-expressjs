@@ -1,0 +1,7 @@
+{
+  "env": {
+    "MONGO_USER": "zyamura",
+    "MONGO_PASSWORD": "0uDaRYX9Jbhi6CLZ@zyamura.ewpn9zp",
+    "MONGO_DEFAULT_DATABASE": "zyamura"
+  }
+}

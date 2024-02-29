@@ -11,7 +11,7 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-exports.postSignup = (req, res, next) => {
+exports.postSignup = async (req, res, next) => {
   if (!req.file) {
     const error = new Error(
       "Please upload images in JPEG, JPG, or PNG format only."
@@ -20,27 +20,31 @@ exports.postSignup = (req, res, next) => {
     throw error;
   }
 
-  const { password, ...userData } = req.body;
-  userData.profilePicture = req.file.path;
+  try {
+    const _id = await User.fetchUser(req.body.username);
+    if (_id) {
+      const error = new Error("Username already exist.");
+      error.statusCode = 409;
+      throw error;
+    }
 
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPw) => {
-      userData.password = hashedPw;
-      const user = new User(userData);
-      return user.save();
-    })
-    .then((result) => {
-      res
-        .status(201)
-        .json({ message: "Signup successful", userId: result.insertedId });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
+    const { password, ...userData } = req.body;
+    userData.profilePicture = req.file.path;
+
+    const hashedPw = await bcrypt.hash(password, 12);
+    userData.password = hashedPw;
+    const user = new User(userData);
+    await user.save();
+
+    res
+      .status(201)
+      .json({ message: "Signup successful", userId: user.insertedId });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };
 
 exports.postLogin = async (req, res, next) => {
@@ -67,7 +71,13 @@ exports.postLogin = async (req, res, next) => {
         userId: user._id.toString(),
       },
       "secrettoken",
-      { expiresIn: "12h" }
+      { expiresIn: "24h" }
+    );
+
+    // To add the token in cookie to access it in server side rendering in next js (Check it in Inventory page in next js)
+    res.setHeader(
+      "Set-Cookie",
+      `token=${token}; Max-Age=${60 * 60 * 24}; HttpOnly; Secure;`
     );
     res.status(200).json({
       token: token,
