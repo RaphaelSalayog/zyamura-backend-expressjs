@@ -20,7 +20,7 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use("/images", express.static(path.join(__dirname, "images"))); // to access the images folder from client side by using a url <img src={'http://localhost:3000/images\\inventory\\2024-02-29T10-47-00.961Z-4.png'}/>
 
-app.use(inventory);
+app.use("/inventory", inventory);
 app.use(auth);
 
 app.use((error, req, res, next) => {

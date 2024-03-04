@@ -25,7 +25,13 @@ exports.postInventory = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const data = { ...req.body, imageUrl: req.file.path }; // use const formData = FormData() in client side to accept the text and file
+    const data = {
+      ...req.body,
+      sellingPrice: Number(req.body.sellingPrice),
+      investmentCost: Number(req.body.investmentCost),
+      quantity: Number(req.body.quantity),
+      imageUrl: req.file.path,
+    }; // use const formData = FormData() in client side to accept the text and file
 
     const inventory = await new Inventory(data);
     const result = await inventory.save();
@@ -53,7 +59,14 @@ exports.updateInventory = async (req, res, next) => {
     if (req.file) {
       imageUrl = req.file.path;
     }
-    const data = { _id: _id, ...req.body, imageUrl: imageUrl };
+    const data = {
+      _id: _id,
+      ...req.body,
+      sellingPrice: Number(req.body.sellingPrice),
+      investmentCost: Number(req.body.investmentCost),
+      quantity: Number(req.body.quantity),
+      imageUrl: imageUrl,
+    };
 
     if (!imageUrl) {
       const error = new Error("No file picked");
@@ -114,6 +127,22 @@ exports.deleteInventory = async (req, res, next) => {
       message: "Delete user successfully",
       _id: _id,
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.deductQuantity = async (req, res, next) => {
+  const data = req.body;
+
+  try {
+    const response = await Inventory.deductQuantityById(data);
+    res
+      .status(200)
+      .json({ message: "Deduct quantity successful", data: response });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;

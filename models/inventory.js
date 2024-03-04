@@ -83,4 +83,20 @@ module.exports = class Inventory {
       console.log(err);
     }
   }
+
+  static async deductQuantityById(data) {
+    const db = getDb();
+    try {
+      return await data.map((item) =>
+        db
+          .collection("inventory")
+          .updateOne(
+            { _id: new ObjectId(item._id) },
+            { $inc: { quantity: -item.quantity } }
+          )
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
 };

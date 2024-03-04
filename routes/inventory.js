@@ -8,21 +8,19 @@ const {
   postInventory,
   updateInventory,
   deleteInventory,
+  deductQuantity,
 } = require("../controllers/inventory");
 
-router.get("/inventory", isAuth, getInventory);
-router.post(
-  "/inventory",
-  isAuth,
-  imageUploader("inventory", "imageUrl"),
-  postInventory
-);
+router.get("", isAuth, getInventory);
+router.post("", isAuth, imageUploader("inventory", "imageUrl"), postInventory);
 router.put(
-  "/inventory/:inventoryId",
+  "/:inventoryId",
   isAuth,
   imageUploader("inventory", "imageUrl"),
   updateInventory
 );
-router.delete("/inventory/:inventoryId", isAuth, deleteInventory);
+router.delete("/:inventoryId", isAuth, deleteInventory);
+
+router.patch("/deductQuantity", deductQuantity);
 
 module.exports = router;
