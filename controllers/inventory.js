@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
+const io = require("../socket");
 const Inventory = require("../models/inventory");
 
 exports.getInventory = async (req, res, next) => {
@@ -28,6 +29,9 @@ exports.postInventory = async (req, res, next) => {
 
     const inventory = await new Inventory(data);
     const result = await inventory.save();
+
+    // Web socket
+    io.getIo().emit("inventory", { action: "create", inventory: inventory });
 
     res.status(200).json({
       message: "Product created successfully",
@@ -70,6 +74,9 @@ exports.updateInventory = async (req, res, next) => {
     const inventory = await new Inventory(data);
     const result = await inventory.save();
 
+    // Web socket
+    io.getIo().emit("inventory", { action: "update", inventory: inventory });
+
     res.status(200).json({
       message: "Product updated successfully",
       post: result,
@@ -99,7 +106,9 @@ exports.deleteInventory = async (req, res, next) => {
     clearImage(data.imageUrl);
 
     const response = await Inventory.deleteById(_id);
-    console.log(response);
+
+    // Web socket
+    io.getIo().emit("inventory", { action: "delete", inventory: _id });
 
     res.status(200).json({
       message: "Delete user successfully",
