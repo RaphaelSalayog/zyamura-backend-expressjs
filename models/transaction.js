@@ -14,4 +14,13 @@ module.exports = class Transaction {
       console.log(err);
     }
   }
+
+  static async fetchAll() {
+    const db = getDb();
+    try {
+      return await db.collection("transaction").find().toArray();
+    } catch (err) {
+      console.log(err);
+    }
+  }
 };

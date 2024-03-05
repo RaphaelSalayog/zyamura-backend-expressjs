@@ -33,7 +33,7 @@ exports.postInventory = async (req, res, next) => {
       imageUrl: req.file.path,
     }; // use const formData = FormData() in client side to accept the text and file
 
-    const inventory = await new Inventory(data);
+    const inventory = new Inventory(data);
     const result = await inventory.save();
 
     // Web socket
@@ -84,7 +84,7 @@ exports.updateInventory = async (req, res, next) => {
       clearImage(response.imageUrl);
     }
 
-    const inventory = await new Inventory(data);
+    const inventory = new Inventory(data);
     const result = await inventory.save();
 
     // Web socket
