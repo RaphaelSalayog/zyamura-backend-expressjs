@@ -3,7 +3,9 @@ const { getDb } = require("../util/database");
 
 module.exports = class Transaction {
   constructor(data) {
-    this.data = data;
+    const { date, transactionData } = data;
+    this.date = date;
+    this.transactionData = transactionData;
   }
 
   async save() {
