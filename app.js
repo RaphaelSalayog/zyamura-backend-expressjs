@@ -6,6 +6,7 @@ const path = require("path");
 const { mongoConnection } = require("./util/database");
 const inventory = require("./routes/inventory");
 const auth = require("./routes/auth");
+const transaction = require("./routes/transaction");
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/images", express.static(path.join(__dirname, "images"))); // to access
 
 app.use("/inventory", inventory);
 app.use(auth);
+app.use("/transaction", transaction);
 
 app.use((error, req, res, next) => {
   console.log(error);

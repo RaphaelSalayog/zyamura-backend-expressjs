@@ -21,6 +21,6 @@ router.put(
 );
 router.delete("/:inventoryId", isAuth, deleteInventory);
 
-router.patch("/deductQuantity", deductQuantity);
+router.patch("/deductQuantity", isAuth, deductQuantity);
 
 module.exports = router;
