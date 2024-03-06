@@ -110,6 +110,20 @@ exports.postLogin = async (req, res, next) => {
   }
 };
 
+exports.getUsers = async (req, res, next) => {
+  // users information only
+  try {
+    const response = await User.fetchAllUsers();
+
+    res.status(200).json(response);
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 exports.getUserById = async (req, res, next) => {
   const _id = req.userId;
 

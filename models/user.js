@@ -68,6 +68,19 @@ module.exports = class User {
     }
   }
 
+  static async fetchAllUsers() {
+    const db = getDb();
+    try {
+      return await db
+        .collection("user")
+        .find()
+        .project({ credentials: 0 }) // 'project({ credentials: 0 })' to remove credentials key from the response data
+        .toArray();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   static async findById(_id) {
     const db = getDb();
     try {

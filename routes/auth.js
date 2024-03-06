@@ -8,6 +8,7 @@ const {
   postLogin,
   getLogin,
   getLogout,
+  getUsers,
   getUserById,
   putUser,
   deleteUser,
@@ -18,6 +19,7 @@ router.post("/login", postLogin);
 router.get("/logout", isAuth, getLogout);
 router.post("/signup", imageUploader("user", "profilePicture"), postSignup);
 
+router.get("/users", isAuth, getUsers);
 router.get("/user", isAuth, getUserById);
 router.put(
   "/user/:userId",
