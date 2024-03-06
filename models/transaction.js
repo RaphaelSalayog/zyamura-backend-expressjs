@@ -11,7 +11,7 @@ module.exports = class Transaction {
   async save() {
     const db = getDb();
     try {
-      await db.collection("transaction").insertOne(this);
+      return await db.collection("transaction").insertOne(this);
     } catch (err) {
       console.log(err);
     }
@@ -21,6 +21,28 @@ module.exports = class Transaction {
     const db = getDb();
     try {
       return await db.collection("transaction").find().toArray();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  static async findById(_id) {
+    const db = getDb();
+    try {
+      return await db.collection("transaction").findOne({
+        _id: _id,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  static async findByTransactionId(transactionId) {
+    const db = getDb();
+    try {
+      return await db.collection("transaction").findOne({
+        "transactionData._id": transactionId,
+      });
     } catch (err) {
       console.log(err);
     }
