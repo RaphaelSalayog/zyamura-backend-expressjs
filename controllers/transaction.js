@@ -1,3 +1,6 @@
+const path = require("path");
+
+const { duplicateImage } = require("../middleware/duplicateImage");
 const Transaction = require("../models/transaction");
 
 exports.getTransaction = async (req, res, next) => {
@@ -35,9 +38,60 @@ exports.getTransactionById = async (req, res, next) => {
 exports.postTransaction = async (req, res, next) => {
   const data = req.body;
 
-  const transaction = new Transaction(data);
+  // to change the path of imageUrl
+  const modifiedData = {
+    ...data,
+    transactionData: {
+      ...data.transactionData,
+      orderedItems: data.transactionData.orderedItems.map((item) => {
+        const url = item.itemDetails.imageUrl.split("inventory");
+        const modifiedUrl = url[0] + "transaction" + url[1];
+        const data = {
+          ...item,
+          itemDetails: {
+            ...item.itemDetails,
+            imageUrl: modifiedUrl,
+          },
+        };
+        return data;
+      }),
+    },
+  };
+
+  const transaction = new Transaction(modifiedData);
   const response = await transaction.save();
   const result = await Transaction.findById(response.insertedId);
   const _id = result.transactionData._id;
+
+  // to duplicate the images
+  const imageUrl = data.transactionData.orderedItems.map((item) => {
+    const url = item.itemDetails.imageUrl.split("images\\")[1];
+    const path = {
+      folderName: url.split("\\")[0],
+      fileName: url.split("\\")[1],
+    };
+    return path;
+  });
+
+  imageUrl.map((value) => {
+    const sourcePath = path.join(
+      __dirname,
+      "..",
+      "images",
+      value.folderName,
+      value.fileName
+    );
+
+    const duplicatePath = path.join(
+      __dirname,
+      "..",
+      "images",
+      "transaction",
+      value.fileName
+    );
+
+    duplicateImage(sourcePath, duplicatePath);
+  });
+
   res.status(200).json(_id);
 };
