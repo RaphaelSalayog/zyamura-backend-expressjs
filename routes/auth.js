@@ -10,7 +10,7 @@ const {
   getLogout,
   getUsers,
   getUserById,
-  putUser,
+  putUserInformation,
   deleteUser,
 } = require("../controllers/auth");
 
@@ -22,10 +22,10 @@ router.post("/signup", imageUploader("user", "profilePicture"), postSignup);
 router.get("/users", isAuth, getUsers);
 router.get("/user", isAuth, getUserById);
 router.put(
-  "/user/:userId",
+  "/user/information/:userId",
   isAuth,
   imageUploader("user", "profilePicture"),
-  putUser
+  putUserInformation
 );
 router.delete(
   "/user/:userId",

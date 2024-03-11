@@ -16,41 +16,22 @@ module.exports = class User {
       password: userData.password,
     };
     this.profilePicture = userData.profilePicture;
+
+    // if (userData.username) {
+    //   this.credentials.username = userData.username;
+    // }
+    // if (userData.password) {
+    //   this.credentials.password = userData.password;
+    // }
+    // if (userData.newPassword) {
+    //   this.credentials.newPassword = userData.newPassword;
+    // }
   }
 
   async save() {
     const db = getDb();
-
-    let dbOperation;
-    if (this._id) {
-      const {
-        firstName,
-        lastName,
-        phoneNumber,
-        email,
-        credentials: { password },
-        profilePicture,
-      } = this;
-
-      dbOperation = db.collection("user").updateOne(
-        { _id: new ObjectId(this._id) },
-        {
-          $set: {
-            firstName,
-            lastName,
-            phoneNumber,
-            email,
-            "credentials.password": password,
-            profilePicture,
-          },
-        }
-      );
-    } else {
-      dbOperation = db.collection("user").insertOne(this);
-    }
-
     try {
-      return await dbOperation;
+      return await db.collection("user").insertOne(this);
     } catch (err) {
       console.log(err);
     }
@@ -68,14 +49,50 @@ module.exports = class User {
     }
   }
 
+  static async saveUserInformation(userInfo) {
+    const { _id, ...restData } = userInfo;
+    const db = getDb();
+    try {
+      return await db.collection("user").updateOne(
+        { _id: new ObjectId(userInfo._id) },
+        {
+          $set: restData,
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   static async fetchAllUsers() {
     const db = getDb();
     try {
       return await db
         .collection("user")
-        .find()
-        .project({ credentials: 0 }) // 'project({ credentials: 0 })' to remove credentials key from the response data
+        .aggregate([
+          {
+            $project: {
+              _id: 1, // 1 = Include the key | 0 = Exclude the key if you don't need it
+              firstName: 1,
+              lastName: 1,
+              fullName: { $concat: ["$firstName", " ", "$lastName"] },
+              address: 1,
+              phoneNumber: 1,
+              email: 1,
+              birthDate: 1,
+              role: 1,
+              "credentials.username": 1,
+              profilePicture: 1,
+              // Add other fields you want to include
+            },
+          },
+          {
+            $unset: "credentials.password", // Exclude the credentials.password field
+          },
+        ]) // 'project({ credentials: 0 })' to remove credentials key from the response data. 0 = exclude the key, 1 = it will only retrieve the specified key
         .toArray();
+
+      // db.collection("user").find().project({ credentials: 0 }).toArray(); // 'project({ credentials: 0 })' to remove credentials key from the response data
     } catch (err) {
       console.log(err);
     }

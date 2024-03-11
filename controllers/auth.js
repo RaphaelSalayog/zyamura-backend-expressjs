@@ -143,16 +143,20 @@ exports.getUserById = async (req, res, next) => {
   }
 };
 
-exports.putUser = async (req, res, next) => {
+exports.putUserInformation = async (req, res, next) => {
   const _id = req.params.userId;
-  const oldPassword = req.body.oldPassword;
-  const newPassword = req.body.newPassword;
   let imageUrl = req.body.profilePicture;
 
   try {
     if (req.file) {
       imageUrl = req.file.path;
     }
+
+    let data = {
+      _id,
+      profilePicture: imageUrl,
+      ...req.body,
+    };
 
     const fetchedUser = await User.findById(_id);
     if (!fetchedUser) {
@@ -161,48 +165,46 @@ exports.putUser = async (req, res, next) => {
       throw error;
     }
 
-    if (oldPassword) {
-      const isEqual = await bcrypt.compare(
-        oldPassword,
-        fetchedUser.credentials.password
-      );
+    // if (oldPassword) {
+    //   const isEqual = await bcrypt.compare(
+    //     oldPassword,
+    //     fetchedUser.credentials.password
+    //   );
 
-      if (!isEqual) {
-        const error = new Error("Invalid Password");
-        error.statusCode = 400;
-        throw error;
-      }
-    }
+    //   if (!isEqual) {
+    //     const error = new Error("Invalid Password");
+    //     error.statusCode = 400;
+    //     throw error;
+    //   }
+    // }
 
-    if (newPassword) {
-      const isEqual = await bcrypt.compare(
-        newPassword,
-        fetchedUser.credentials.password
-      );
+    // if (newPassword) {
+    //   const isEqual = await bcrypt.compare(
+    //     newPassword,
+    //     fetchedUser.credentials.password
+    //   );
 
-      if (isEqual) {
-        const error = new Error(
-          "New password must be different from the old password."
-        );
-        error.statusCode = 400;
-        throw error;
-      }
-    }
+    //   if (isEqual) {
+    //     const error = new Error(
+    //       "New password must be different from the old password."
+    //     );
+    //     error.statusCode = 400;
+    //     throw error;
+    //   }
+    // }
+
+    // const hashedPw = await bcrypt.hash(newPassword, 12);
+    // data = {
+    //   password: hashedPw,
+    //   ...req.body,
+    // };
 
     if (imageUrl !== fetchedUser.profilePicture) {
       clearImage(fetchedUser.profilePicture);
     }
-    const hashedPw = await bcrypt.hash(newPassword, 12);
-    const data = {
-      _id,
-      password: hashedPw,
-      profilePicture: imageUrl,
-      ...req.body,
-    };
-    const user = new User(data);
-    await user.save();
 
-    res.status(200).json({ message: "Update successfully", _id: user._id });
+    const response = await User.saveUserInformation(data);
+    res.status(200).json({ message: "Update successfully", _id: _id });
   } catch (err) {
     if (req.file) {
       clearImage(imageUrl);
@@ -227,7 +229,6 @@ exports.deleteUser = async (req, res, next) => {
     clearImage(data.profilePicture);
 
     const response = await User.deleteById(_id);
-    console.log(response);
 
     res.status(200).json({
       message: "Delete user successfully",
