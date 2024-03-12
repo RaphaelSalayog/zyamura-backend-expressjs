@@ -11,6 +11,8 @@ const {
   getUsers,
   getUserById,
   putUserInformation,
+  putUserUsername,
+  putUserPassword,
   deleteUser,
 } = require("../controllers/auth");
 
@@ -27,6 +29,8 @@ router.put(
   imageUploader("user", "profilePicture"),
   putUserInformation
 );
+router.put("/user/username/:userId", isAuth, putUserUsername);
+router.put("/user/password/:userId", isAuth, putUserPassword);
 router.delete(
   "/user/:userId",
   isAuth,

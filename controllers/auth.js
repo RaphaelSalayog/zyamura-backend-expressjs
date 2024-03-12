@@ -33,7 +33,7 @@ exports.postSignup = async (req, res, next) => {
   try {
     const _id = await User.fetchUser(req.body.username);
     if (_id) {
-      const error = new Error("Username already exist.");
+      const error = new Error("Username already exist!");
       error.statusCode = 409;
       throw error;
     }
@@ -50,6 +50,9 @@ exports.postSignup = async (req, res, next) => {
       .status(201)
       .json({ message: "Signup successful", userId: user.insertedId });
   } catch (err) {
+    if (req.file) {
+      clearImage(req.file.path);
+    }
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -165,50 +168,97 @@ exports.putUserInformation = async (req, res, next) => {
       throw error;
     }
 
-    // if (oldPassword) {
-    //   const isEqual = await bcrypt.compare(
-    //     oldPassword,
-    //     fetchedUser.credentials.password
-    //   );
-
-    //   if (!isEqual) {
-    //     const error = new Error("Invalid Password");
-    //     error.statusCode = 400;
-    //     throw error;
-    //   }
-    // }
-
-    // if (newPassword) {
-    //   const isEqual = await bcrypt.compare(
-    //     newPassword,
-    //     fetchedUser.credentials.password
-    //   );
-
-    //   if (isEqual) {
-    //     const error = new Error(
-    //       "New password must be different from the old password."
-    //     );
-    //     error.statusCode = 400;
-    //     throw error;
-    //   }
-    // }
-
-    // const hashedPw = await bcrypt.hash(newPassword, 12);
-    // data = {
-    //   password: hashedPw,
-    //   ...req.body,
-    // };
-
     if (imageUrl !== fetchedUser.profilePicture) {
       clearImage(fetchedUser.profilePicture);
     }
 
     const response = await User.saveUserInformation(data);
-    res.status(200).json({ message: "Update successfully", _id: _id });
+    res
+      .status(200)
+      .json({ message: "Update user information successfully", _id: _id });
   } catch (err) {
     if (req.file) {
       clearImage(imageUrl);
     }
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.putUserUsername = async (req, res, next) => {
+  const _id = req.params.userId;
+  const data = { _id, ...req.body };
+
+  try {
+    const id = await User.findById(_id);
+    if (!id) {
+      const error = new Error("Could not find user!");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (id.credentials.username === data.username) {
+      const error = new Error(
+        "Username must be different from the old username!"
+      );
+      error.statusCode = 422;
+      throw error;
+    }
+
+    const fetchedUser = await User.fetchUser(data.username);
+    if (fetchedUser) {
+      const error = new Error("Username already exist!");
+      error.statusCode = 409;
+      throw error;
+    }
+
+    const response = await User.saveUserUsername(data);
+    res
+      .status(200)
+      .json({ message: "Update username successfully!", _id: _id });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.putUserPassword = async (req, res, next) => {
+  const _id = req.params.userId;
+  let data = { _id, ...req.body };
+
+  try {
+    const user = await User.findById(_id);
+    if (!user) {
+      const error = new Error("Could not find user!");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const isEqual = await bcrypt.compare(
+      data.newPassword,
+      user.credentials.password
+    );
+
+    if (isEqual) {
+      const error = new Error(
+        "Password must be different from the old password!"
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const hashedPw = await bcrypt.hash(data.newPassword, 12);
+    data = { ...data, password: hashedPw };
+
+    const response = User.saveUserPassword(data);
+    res
+      .status(200)
+      .json({ message: "Update password successfully!", _id: _id });
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }

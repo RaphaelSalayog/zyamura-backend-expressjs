@@ -64,6 +64,36 @@ module.exports = class User {
     }
   }
 
+  static async saveUserUsername(data) {
+    const db = getDb();
+    try {
+      return await db
+        .collection("user")
+        .updateOne(
+          { _id: new ObjectId(data._id) },
+          { $set: { "credentials.username": data.username } }
+        );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  static async saveUserPassword(data) {
+    const db = getDb();
+    try {
+      return await db.collection("user").updateOne(
+        { _id: new ObjectId(data._id) },
+        {
+          $set: {
+            "credentials.password": data.password,
+          },
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   static async fetchAllUsers() {
     const db = getDb();
     try {
