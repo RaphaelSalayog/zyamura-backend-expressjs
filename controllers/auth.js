@@ -272,11 +272,13 @@ exports.deleteUser = async (req, res, next) => {
   try {
     const data = User.findById(_id);
     if (!data) {
-      const error = new Error("Could not find item or pet");
+      const error = new Error("Could not find user!");
       error.statusCode = 404;
       throw error;
     }
-    clearImage(data.profilePicture);
+    if (data.profilePicture) {
+      clearImage(data.profilePicture);
+    }
 
     const response = await User.deleteById(_id);
 
