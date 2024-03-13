@@ -3,6 +3,7 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const io = require("../socket");
 const User = require("../models/user");
 
 exports.getLogin = (req, res, next) => {
@@ -46,6 +47,13 @@ exports.postSignup = async (req, res, next) => {
     const user = new User(userData);
     await user.save();
 
+    const modifiedUser = {
+      ...user,
+      fullName: `${user.firstName} ${user.lastName}`,
+    };
+    delete modifiedUser.credentials.password;
+
+    io.getIo().emit("user", { action: "create", users: modifiedUser });
     res
       .status(201)
       .json({ message: "Signup successful", userId: user.insertedId });
@@ -172,6 +180,15 @@ exports.putUserInformation = async (req, res, next) => {
       clearImage(fetchedUser.profilePicture);
     }
 
+    const modifiedUser = {
+      ...data,
+      fullName: `${data.firstName} ${data.lastName}`,
+    };
+
+    io.getIo().emit("user", {
+      action: "update information",
+      users: modifiedUser,
+    });
     const response = await User.saveUserInformation(data);
     res
       .status(200)
@@ -214,6 +231,7 @@ exports.putUserUsername = async (req, res, next) => {
       throw error;
     }
 
+    io.getIo().emit("user", { action: "update username", users: data });
     const response = await User.saveUserUsername(data);
     res
       .status(200)
@@ -270,16 +288,15 @@ exports.deleteUser = async (req, res, next) => {
   const _id = req.params.userId;
 
   try {
-    const data = User.findById(_id);
+    const data = await User.findById(_id);
     if (!data) {
       const error = new Error("Could not find user!");
       error.statusCode = 404;
       throw error;
     }
-    if (data.profilePicture) {
-      clearImage(data.profilePicture);
-    }
+    clearImage(data.profilePicture);
 
+    io.getIo().emit("user", { action: "delete", users: _id });
     const response = await User.deleteById(_id);
 
     res.status(200).json({

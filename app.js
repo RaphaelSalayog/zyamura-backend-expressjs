@@ -35,7 +35,7 @@ app.use((error, req, res, next) => {
 
 mongoConnection(() => {
   const server = app.listen(process.env.PORT || 3000);
-  const io = require("./socket").init(server);
+  const io = require("./socket").init(server); // the require("./socket") is imported from the root folder (zyamura-backend-expressjs)
   // the 'on' in io.on is used to attach event listeners to specific events. the code is listening for the "connection" event, which is a built-in event in Socket.IO.
   io.on("connection", (socket) => {
     console.log("Client connected");
