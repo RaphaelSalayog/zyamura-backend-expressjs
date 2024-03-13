@@ -1,6 +1,7 @@
 const path = require("path");
 
 const { duplicateImage } = require("../middleware/duplicateImage");
+const io = require("../socket");
 const Transaction = require("../models/transaction");
 
 exports.getTransaction = async (req, res, next) => {
@@ -93,5 +94,6 @@ exports.postTransaction = async (req, res, next) => {
     duplicateImage(sourcePath, duplicatePath);
   });
 
+  io.getIo().emit("transaction", { action: "create", transaction: result });
   res.status(200).json(_id);
 };
