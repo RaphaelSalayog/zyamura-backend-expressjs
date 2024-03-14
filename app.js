@@ -2,6 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
+const helmet = require("helmet");
+const compression = require("compression");
 
 const { mongoConnection } = require("./util/database");
 const inventory = require("./routes/inventory");
@@ -16,6 +18,8 @@ const corsOptions = {
   credentials: true,
 };
 
+app.use(helmet()); // it automatically set headers for responses for good practice
+app.use(compression()); // it automatically compress the size of files
 // app.use(bodyParser.urlencoded({ extended: false })); // used for forms
 app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
