@@ -18,7 +18,11 @@ const corsOptions = {
   credentials: true,
 };
 
-app.use(helmet()); // it automatically set headers for responses for good practice
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+); // it automatically set headers for responses for good practice
 app.use(compression()); // it automatically compress the size of files
 // app.use(bodyParser.urlencoded({ extended: false })); // used for forms
 app.use(cors(corsOptions));
